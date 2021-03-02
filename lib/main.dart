@@ -20,7 +20,7 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
   double _position = 0;
   double _buffer = 0;
   bool _lock = true;
-  VideoPlayerController _controllerr;
+  VideoPlayerController _controller;
 
   Map<int, VoidCallback> _listeners = {};
   // Set<String> _videos = {
@@ -57,9 +57,9 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
 
   VoidCallback _listenerSpawner(index) {
     return () {
-      int dur = _controllerr.value.duration.inMilliseconds;
-      int pos = _controllerr.value.position.inMilliseconds;
-      int buf = _controllerr.value.buffered.last.end.inMilliseconds;
+      int dur = _controller.value.duration.inMilliseconds;
+      int pos = _controller.value.position.inMilliseconds;
+      int buf = _controller.value.buffered.last.end.inMilliseconds;
 
       setState(() {
         if (dur <= pos) {
@@ -79,26 +79,26 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
 
   Future<void> _initController(int index) async {
     var controller = VideoPlayerController.asset(_videos[index]);
-    _controllerr = controller;
-    await _controllerr.initialize();
+    _controller = controller;
+    await _controller.initialize();
 
     _playController(index);
   }
 
   void _removeController() {
-    _controllerr.dispose();
+    _controller.dispose();
   }
 
   void _stopController() {
-    _controllerr.pause();
+    _controller.pause();
   }
 
   void _playController(int index) async {
     if (!_listeners.keys.contains(index)) {
       _listeners[index] = _listenerSpawner(index);
     }
-    _controllerr.addListener(_listeners[index]);
-    await _controllerr.play();
+    _controller.addListener(_listeners[index]);
+    await _controller.play();
     setState(() {});
   }
 
@@ -137,9 +137,9 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
                   padding: const EdgeInsets.all(16.0),
                   child: Stack(children: [
                     GestureDetector(
-                      onLongPressStart: (_) => _controllerr.pause(),
-                      onLongPressEnd: (_) => _controllerr.play(),
-                      child: VideoPlayer(_controllerr),
+                      onLongPressStart: (_) => _controller.pause(),
+                      onLongPressEnd: (_) => _controller.play(),
+                      child: VideoPlayer(_controller),
                     ),
                     Positioned(
                       child: Container(
