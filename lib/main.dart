@@ -24,8 +24,8 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
   Map<int, VoidCallback> _listeners = {};
   Set<String> _urls = {
     'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#1',
-    'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#2',
-    'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#3',
+    'https://archive.org/download/mblbhs/mblbhs.mp4',
+    'https://archive.org/download/Damas_BB_28F8B535_D_406/DaMaS.mp4',
     'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#4',
     // 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#5',
     // 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#6',
@@ -159,20 +159,20 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
                       onLongPressEnd: (_) => _controller(index).play(),
                       child: VideoPlayer(_controller(index)),
                     ),
-                    // Positioned(
-                    //   child: Container(
-                    //     height: 10,
-                    //     width: MediaQuery.of(context).size.width * _buffer,
-                    //     color: Colors.grey,
-                    //   ),
-                    // ),
-                    // Positioned(
-                    //   child: Container(
-                    //     height: 10,
-                    //     width: MediaQuery.of(context).size.width * _position,
-                    //     color: Colors.greenAccent,
-                    //   ),
-                    // ),
+                    Positioned(
+                      child: Container(
+                        height: 10,
+                        width: MediaQuery.of(context).size.width * _buffer,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    Positioned(
+                      child: Container(
+                        height: 10,
+                        width: MediaQuery.of(context).size.width * _position,
+                        color: Colors.greenAccent,
+                      ),
+                    ),
                   ]),
                 ),
               ),
@@ -180,9 +180,17 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
                 flex: 2,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: 1,
-                  itemBuilder: (BuildContext context, int index) {
-                    return;
+                  itemCount: _urls.length,
+                  itemBuilder: (BuildContext context, int _index) {
+                    final width =
+                        MediaQuery.of(context).size.width / _urls.length;
+                    return VideoItem(
+                      url: _urls.elementAt(_index),
+                      active: false,
+                      playing: index == _index,
+                      position: _position,
+                      width: width,
+                    );
                   },
                 ),
               ),
@@ -215,11 +223,20 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
 }
 
 class VideoItem extends StatefulWidget {
-  VideoItem({Key key, this.url, this.active}) : super(key: key);
+  VideoItem(
+      {Key key,
+      this.url,
+      this.active,
+      this.playing = false,
+      this.position,
+      this.width = 50})
+      : super(key: key);
 
   final String url;
-
   final bool active;
+  final bool playing;
+  final double position;
+  final double width;
 
   @override
   _VideoItemState createState() => _VideoItemState();
@@ -247,15 +264,30 @@ class _VideoItemState extends State<VideoItem> {
   Widget build(BuildContext context) {
     return Container(
       height: 50,
-      width: 50,
+      width: widget.width,
       decoration: widget.active
           ? BoxDecoration(
               border: Border.all(width: 5, color: Colors.pink),
               borderRadius: BorderRadius.all(Radius.circular(10)))
           : null,
-      child: VideoPlayer(
-        _controller,
-      ),
+      child: Stack(children: [
+        VideoPlayer(
+          _controller,
+        ),
+        widget.playing
+            ? Padding(
+                padding: EdgeInsets.only(
+                    left:
+                        widget.position * widget.width - 10 * widget.position),
+                child: Container(
+                  width: 10,
+                  color: Colors.white,
+                ),
+              )
+            : Container()
+      ]),
     );
   }
 }
+
+// widget.position * 50
