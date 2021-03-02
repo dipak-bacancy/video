@@ -20,38 +20,46 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
   double _position = 0;
   double _buffer = 0;
   bool _lock = true;
-  Map<String, VideoPlayerController> _controllers = {};
+  VideoPlayerController _controllerr;
+
   Map<int, VoidCallback> _listeners = {};
-  Set<String> _urls = {
-    'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#1',
-    'https://archive.org/download/mblbhs/mblbhs.mp4',
-    'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#6',
-    // 'https://archive.org/download/Damas_BB_28F8B535_D_406/DaMaS.mp4',
-    'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#4',
-    // 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#5',
-    // 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#7',
-  };
+  // Set<String> _videos = {
+  //   'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#1',
+  //   'https://archive.org/download/mblbhs/mblbhs.mp4',
+  //   'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#6',
+  //   // 'https://archive.org/download/Damas_BB_28F8B535_D_406/DaMaS.mp4',
+  //   'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#4',
+  //   // 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#5',
+  //   // 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#7',
+  // };
+
+  List _videos = [
+    'assets/butterfly.mp4',
+    'assets/butterfly.mp4',
+    'assets/butterfly.mp4',
+    'assets/butterfly.mp4',
+  ];
 
   @override
   void initState() {
     super.initState();
 
-    if (_urls.length > 0) {
+    if (_videos.length > 0) {
       _initController(0).then((_) {
         _playController(0);
       });
     }
 
-    if (_urls.length > 1) {
+    if (_videos.length > 1) {
       _initController(1).whenComplete(() => _lock = false);
     }
   }
 
   VoidCallback _listenerSpawner(index) {
     return () {
-      int dur = _controller(index).value.duration.inMilliseconds;
-      int pos = _controller(index).value.position.inMilliseconds;
-      int buf = _controller(index).value.buffered.last.end.inMilliseconds;
+      int dur = _controllerr.value.duration.inMilliseconds;
+      int pos = _controllerr.value.position.inMilliseconds;
+      int buf = _controllerr.value.buffered.last.end.inMilliseconds;
 
       setState(() {
         if (dur <= pos) {
@@ -62,80 +70,53 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
         _buffer = buf / dur;
       });
       if (dur - pos < 1) {
-        if (index < _urls.length - 1) {
+        if (index < _videos.length - 1) {
           _nextVideo();
         }
       }
     };
   }
 
-  VideoPlayerController _controller(int index) {
-    return _controllers[_urls.elementAt(index)];
-  }
-
   Future<void> _initController(int index) async {
-    var controller = VideoPlayerController.network(_urls.elementAt(index));
-    _controllers[_urls.elementAt(index)] = controller;
-    await controller.initialize();
+    var controller = VideoPlayerController.asset(_videos[index]);
+    _controllerr = controller;
+    await _controllerr.initialize();
+
+    _playController(index);
   }
 
-  void _removeController(int index) {
-    _controller(index).dispose();
-    _controllers.remove(_urls.elementAt(index));
-    _listeners.remove(index);
+  void _removeController() {
+    _controllerr.dispose();
   }
 
-  void _stopController(int index) {
-    _controller(index).removeListener(_listeners[index]);
-    _controller(index).pause();
-    _controller(index).seekTo(Duration(milliseconds: 0));
+  void _stopController() {
+    _controllerr.pause();
   }
 
   void _playController(int index) async {
     if (!_listeners.keys.contains(index)) {
       _listeners[index] = _listenerSpawner(index);
     }
-    _controller(index).addListener(_listeners[index]);
-    await _controller(index).play();
+    _controllerr.addListener(_listeners[index]);
+    await _controllerr.play();
     setState(() {});
   }
 
-  void _previousVideo() {
-    if (_lock || index == 0) {
-      return;
-    }
-    _lock = true;
-
-    _stopController(index);
-
-    if (index + 1 < _urls.length) {
-      _removeController(index + 1);
-    }
-
-    _playController(--index);
-
-    if (index == 0) {
-      _lock = false;
-    } else {
-      _initController(index - 1).whenComplete(() => _lock = false);
-    }
-  }
-
   void _nextVideo() async {
-    if (_lock || index == _urls.length - 1) {
+    if (_lock || index == _videos.length - 1) {
       return;
     }
     _lock = true;
 
-    _stopController(index);
+    _stopController();
 
     if (index - 1 >= 0) {
-      _removeController(index - 1);
+      _removeController();
     }
 
     _playController(++index);
 
-    if (index == _urls.length - 1) {
+    if (index == _videos.length - 1) {
       _lock = false;
     } else {
       _initController(index + 1).whenComplete(() => _lock = false);
@@ -144,7 +125,7 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width / _urls.length;
+    final width = MediaQuery.of(context).size.width / _videos.length;
     return Scaffold(
         body: Container(
           decoration: BoxDecoration(color: Colors.black),
@@ -156,9 +137,9 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
                   padding: const EdgeInsets.all(16.0),
                   child: Stack(children: [
                     GestureDetector(
-                      onLongPressStart: (_) => _controller(index).pause(),
-                      onLongPressEnd: (_) => _controller(index).play(),
-                      child: VideoPlayer(_controller(index)),
+                      onLongPressStart: (_) => _controllerr.pause(),
+                      onLongPressEnd: (_) => _controllerr.play(),
+                      child: VideoPlayer(_controllerr),
                     ),
                     Positioned(
                       child: Container(
@@ -182,10 +163,10 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
                 child: Stack(children: [
                   ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: _urls.length,
+                    itemCount: _videos.length,
                     itemBuilder: (BuildContext context, int _index) {
                       return VideoItem(
-                        url: _urls.elementAt(_index),
+                        url: _videos.elementAt(_index),
                         active: false,
                         playing: index == _index,
                         position: _position,
@@ -208,12 +189,12 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
                 flex: 2,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: _urls.length,
+                  itemCount: _videos.length,
                   itemBuilder: (BuildContext context, int _index) {
                     return Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: VideoItem(
-                        url: _urls.elementAt(_index),
+                        url: _videos.elementAt(_index),
                         active: index == _index,
                       ),
                     );
@@ -257,7 +238,7 @@ class _VideoItemState extends State<VideoItem> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.network(widget.url)
+    _controller = VideoPlayerController.asset(widget.url)
       ..initialize().then((_) {
         setState(() {}); //when your thumbnail will show.
       });
