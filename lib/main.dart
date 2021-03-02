@@ -25,10 +25,10 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
   Set<String> _urls = {
     'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#1',
     'https://archive.org/download/mblbhs/mblbhs.mp4',
-    'https://archive.org/download/Damas_BB_28F8B535_D_406/DaMaS.mp4',
+    'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#6',
+    // 'https://archive.org/download/Damas_BB_28F8B535_D_406/DaMaS.mp4',
     'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#4',
     // 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#5',
-    // 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#6',
     // 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#7',
   };
 
@@ -144,6 +144,7 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width / _urls.length;
     return Scaffold(
         body: Container(
           decoration: BoxDecoration(color: Colors.black),
@@ -178,21 +179,29 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
               ),
               Expanded(
                 flex: 2,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _urls.length,
-                  itemBuilder: (BuildContext context, int _index) {
-                    final width =
-                        MediaQuery.of(context).size.width / _urls.length;
-                    return VideoItem(
-                      url: _urls.elementAt(_index),
-                      active: false,
-                      playing: index == _index,
-                      position: _position,
-                      width: width,
-                    );
-                  },
-                ),
+                child: Stack(children: [
+                  ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _urls.length,
+                    itemBuilder: (BuildContext context, int _index) {
+                      return VideoItem(
+                        url: _urls.elementAt(_index),
+                        active: false,
+                        playing: index == _index,
+                        position: _position,
+                        width: width,
+                      );
+                    },
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        left: _position * width + width * index),
+                    child: Container(
+                      width: 10,
+                      color: Colors.white,
+                    ),
+                  )
+                ]),
               ),
               SizedBox(height: 20),
               Expanded(
@@ -274,17 +283,6 @@ class _VideoItemState extends State<VideoItem> {
         VideoPlayer(
           _controller,
         ),
-        widget.playing
-            ? Padding(
-                padding: EdgeInsets.only(
-                    left:
-                        widget.position * widget.width - 10 * widget.position),
-                child: Container(
-                  width: 10,
-                  color: Colors.white,
-                ),
-              )
-            : Container()
       ]),
     );
   }
