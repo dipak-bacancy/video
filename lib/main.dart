@@ -46,6 +46,12 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
     }
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   VoidCallback _listenerSpawner() {
     return () {
       int dur = _controller.value.duration.inMilliseconds;
@@ -149,8 +155,6 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
                       return VideoItem(
                         url: _videos.elementAt(_index),
                         active: false,
-                        playing: index == _index,
-                        position: _position,
                         width: width,
                       );
                     },
@@ -194,19 +198,12 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
 }
 
 class VideoItem extends StatefulWidget {
-  VideoItem(
-      {Key key,
-      this.url,
-      this.active,
-      this.playing = false,
-      this.position,
-      this.width = 50})
+  VideoItem({Key key, this.url, this.active, this.width = 50})
       : super(key: key);
 
   final String url;
   final bool active;
-  final bool playing;
-  final double position;
+
   final double width;
 
   @override
@@ -249,5 +246,3 @@ class _VideoItemState extends State<VideoItem> {
     );
   }
 }
-
-// widget.position * 50
