@@ -22,16 +22,7 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
   bool _lock = true;
   VideoPlayerController _controller;
 
-  Map<int, VoidCallback> _listeners = {};
-  // Set<String> _videos = {
-  //   'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#1',
-  //   'https://archive.org/download/mblbhs/mblbhs.mp4',
-  //   'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#6',
-  //   // 'https://archive.org/download/Damas_BB_28F8B535_D_406/DaMaS.mp4',
-  //   'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#4',
-  //   // 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#5',
-  //   // 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4#7',
-  // };
+  VoidCallback _listener;
 
   List _videos = [
     'assets/butterfly.mp4',
@@ -46,7 +37,7 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
 
     if (_videos.length > 0) {
       _initController(0).then((_) {
-        _playController(0);
+        // _playController(0);
       });
     }
 
@@ -55,7 +46,7 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
     }
   }
 
-  VoidCallback _listenerSpawner(index) {
+  VoidCallback _listenerSpawner() {
     return () {
       int dur = _controller.value.duration.inMilliseconds;
       int pos = _controller.value.position.inMilliseconds;
@@ -78,15 +69,10 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
   }
 
   Future<void> _initController(int index) async {
-    var controller = VideoPlayerController.asset(_videos[index]);
-    _controller = controller;
+    _controller = VideoPlayerController.asset(_videos[index]);
     await _controller.initialize();
 
     _playController(index);
-  }
-
-  void _removeController() {
-    _controller.dispose();
   }
 
   void _stopController() {
@@ -94,10 +80,9 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
   }
 
   void _playController(int index) async {
-    if (!_listeners.keys.contains(index)) {
-      _listeners[index] = _listenerSpawner(index);
-    }
-    _controller.addListener(_listeners[index]);
+    _listener = _listenerSpawner();
+
+    _controller.addListener(_listener);
     await _controller.play();
     setState(() {});
   }
@@ -109,12 +94,8 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
     _lock = true;
 
     _stopController();
-
-    if (index - 1 >= 0) {
-      _removeController();
-    }
-
-    _playController(++index);
+    _initController(++index);
+    // _playController(++index);
 
     if (index == _videos.length - 1) {
       _lock = false;
