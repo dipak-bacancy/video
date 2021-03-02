@@ -4,6 +4,9 @@ import 'package:video_player/video_player.dart';
 main() {
   runApp(MaterialApp(
     home: VideoPlayerDemo(),
+    theme: ThemeData(
+      backgroundColor: Colors.black,
+    ),
   ));
 }
 
@@ -142,63 +145,67 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Playing ${index + 1} of ${_urls.length}"),
-        ),
-        body: Column(
-          children: <Widget>[
-            Expanded(
-              flex: 7,
-              child: Stack(children: [
-                GestureDetector(
-                  onLongPressStart: (_) => _controller(index).pause(),
-                  onLongPressEnd: (_) => _controller(index).play(),
-                  child: Center(
-                    child: AspectRatio(
-                      aspectRatio: _controller(index).value.aspectRatio,
-                      child: Center(child: VideoPlayer(_controller(index))),
+        body: Container(
+          decoration: BoxDecoration(color: Colors.black),
+          child: Column(
+            children: <Widget>[
+              Expanded(
+                flex: 9,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Stack(children: [
+                    GestureDetector(
+                      onLongPressStart: (_) => _controller(index).pause(),
+                      onLongPressEnd: (_) => _controller(index).play(),
+                      child: VideoPlayer(_controller(index)),
                     ),
-                  ),
+                    // Positioned(
+                    //   child: Container(
+                    //     height: 10,
+                    //     width: MediaQuery.of(context).size.width * _buffer,
+                    //     color: Colors.grey,
+                    //   ),
+                    // ),
+                    // Positioned(
+                    //   child: Container(
+                    //     height: 10,
+                    //     width: MediaQuery.of(context).size.width * _position,
+                    //     color: Colors.greenAccent,
+                    //   ),
+                    // ),
+                  ]),
                 ),
-                Positioned(
-                  child: Container(
-                    height: 10,
-                    width: MediaQuery.of(context).size.width * _buffer,
-                    color: Colors.grey,
-                  ),
-                ),
-                Positioned(
-                  child: Container(
-                    height: 10,
-                    width: MediaQuery.of(context).size.width * _position,
-                    color: Colors.greenAccent,
-                  ),
-                ),
-              ]),
-            ),
-            Expanded(
-              flex: 2,
-              child: Placeholder(),
-            ),
-            SizedBox(height: 20),
-            Expanded(
-              flex: 2,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: _urls.length,
-                itemBuilder: (BuildContext context, int _index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: VideoItem(
-                      url: _urls.elementAt(_index),
-                      active: index == _index,
-                    ),
-                  );
-                },
               ),
-            ),
-            SizedBox(height: 20),
-          ],
+              Expanded(
+                flex: 2,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 1,
+                  itemBuilder: (BuildContext context, int index) {
+                    return;
+                  },
+                ),
+              ),
+              SizedBox(height: 20),
+              Expanded(
+                flex: 2,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _urls.length,
+                  itemBuilder: (BuildContext context, int _index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: VideoItem(
+                        url: _urls.elementAt(_index),
+                        active: index == _index,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: 20),
+            ],
+          ),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {},
@@ -243,8 +250,9 @@ class _VideoItemState extends State<VideoItem> {
       width: 50,
       decoration: widget.active
           ? BoxDecoration(
-              border: Border.all(width: 5), color: Colors.pinkAccent[400])
-          : BoxDecoration(),
+              border: Border.all(width: 5, color: Colors.pink),
+              borderRadius: BorderRadius.all(Radius.circular(10)))
+          : null,
       child: VideoPlayer(
         _controller,
       ),
