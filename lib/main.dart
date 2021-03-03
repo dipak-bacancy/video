@@ -35,14 +35,12 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
   void initState() {
     super.initState();
 
-    if (_videos.length > 0) {
-      _initController(0).then((_) {
-        // _playController(0);
-      });
-    }
+    initapp();
+  }
 
-    if (_videos.length > 1) {
-      _initController(1).whenComplete(() => _lock = false);
+  void initapp() {
+    if (_videos.length > 0) {
+      _initController(0).whenComplete(() => _lock = false);
     }
   }
 
@@ -191,7 +189,15 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            index = 0;
+            _position = 0;
+            _buffer = 0;
+            _lock = true;
+
+            setState(() {});
+            initapp();
+          },
           child: Text('Done'),
         ));
   }
