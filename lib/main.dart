@@ -124,27 +124,11 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
                 flex: 9,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Stack(children: [
-                    GestureDetector(
-                      onLongPressStart: (_) => _controller.pause(),
-                      onLongPressEnd: (_) => _controller.play(),
-                      child: VideoPlayer(_controller),
-                    ),
-                    Positioned(
-                      child: Container(
-                        height: 10,
-                        width: MediaQuery.of(context).size.width * _buffer,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    Positioned(
-                      child: Container(
-                        height: 10,
-                        width: MediaQuery.of(context).size.width * _position,
-                        color: Colors.greenAccent,
-                      ),
-                    ),
-                  ]),
+                  child: Container(
+                    child: _controller == null
+                        ? CircularProgressIndicator()
+                        : VideoPlayer(_controller),
+                  ),
                 ),
               ),
               Expanded(
