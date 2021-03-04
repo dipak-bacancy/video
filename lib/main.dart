@@ -73,6 +73,10 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
   }
 
   Future<void> _initController(int index) async {
+    debugPrint("---- controller changed.");
+    setState(() {});
+
+    _controller?.dispose();
     _controller = VideoPlayerController.asset(_videos[index]);
     await _controller.initialize();
 
