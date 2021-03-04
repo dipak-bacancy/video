@@ -112,6 +112,16 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
     }
   }
 
+  void replay() {
+    index = 0;
+    _position = 0;
+    _buffer = 0;
+    _lock = true;
+
+    setState(() {});
+    initapp();
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width / _videos.length;
@@ -157,35 +167,39 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
               ),
               SizedBox(height: 20),
               Expanded(
-                flex: 2,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _videos.length,
-                  itemBuilder: (BuildContext context, int _index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: VideoItem(
-                        url: _videos.elementAt(_index),
-                        active: index == _index,
-                      ),
-                    );
-                  },
-                ),
-              ),
+                  flex: 2,
+                  child: ReorderableListView(
+                    scrollDirection: Axis.horizontal,
+                    onReorder: (int oldIndex, int newIndex) {
+                      setState(() {
+                        if (newIndex > oldIndex) {
+                          newIndex -= 1;
+                        }
+                        final items = _videos.removeAt(oldIndex);
+                        _videos.insert(newIndex, items);
+                      });
+                      replay();
+                    },
+                    children: _videos
+                        .asMap()
+                        .entries
+                        .map((item) => Padding(
+                              key: ValueKey(item.key),
+                              padding: const EdgeInsets.all(12.0),
+                              child: VideoItem(
+                                url: item.value,
+                                active: index == item.key,
+                                width: 50,
+                              ),
+                            ))
+                        .toList(),
+                  )),
               SizedBox(height: 20),
             ],
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            index = 0;
-            _position = 0;
-            _buffer = 0;
-            _lock = true;
-
-            setState(() {});
-            initapp();
-          },
+          onPressed: replay,
           child: Text('Done'),
         ));
   }
