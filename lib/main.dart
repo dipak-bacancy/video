@@ -19,7 +19,7 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
   int index = 0;
   double _position = 0;
   double _buffer = 0;
-  bool _lock = true;
+
   VideoPlayerController _controller;
 
   VoidCallback _listener;
@@ -40,7 +40,7 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
 
   void initapp() {
     if (_videos.length > 0) {
-      _initController(0).whenComplete(() => _lock = false);
+      _initController(0).whenComplete(() => print('initaized'));
     }
   }
 
@@ -76,7 +76,6 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
     debugPrint("---- controller changed.");
     setState(() {});
 
-    _controller?.dispose();
     _controller = VideoPlayerController.asset(_videos[index]);
     await _controller.initialize();
 
@@ -96,27 +95,34 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
   }
 
   void _nextVideo() async {
-    if (_lock || index == _videos.length - 1) {
+    if (index == _videos.length - 1) {
       return;
     }
-    _lock = true;
 
-    _stopController();
-    _initController(++index);
+    final oldController = _controller;
+
+    // Registering a callback for the end of next frame
+    // to dispose of an old controller
+    // (which won't be used anymore after calling setState)
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await oldController.dispose();
+
+      Future.delayed(Duration(seconds: 3));
+      _initController(index++);
+    });
+
+    // Making sure that controller is not used by setting it to null
+    setState(() {
+      _controller = null;
+    });
+
     // _playController(++index);
-
-    if (index == _videos.length - 1) {
-      _lock = false;
-    } else {
-      _initController(index + 1).whenComplete(() => _lock = false);
-    }
   }
 
   void replay() {
     index = 0;
     _position = 0;
     _buffer = 0;
-    _lock = true;
 
     setState(() {});
     initapp();
@@ -136,7 +142,10 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
                   padding: const EdgeInsets.all(16.0),
                   child: Container(
                     child: _controller == null
-                        ? CircularProgressIndicator()
+                        ? VideoItem(
+                            url: _videos[index],
+                            active: false,
+                          )
                         : VideoPlayer(_controller),
                   ),
                 ),
@@ -171,6 +180,7 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
                   child: ReorderableListView(
                     scrollDirection: Axis.horizontal,
                     onReorder: (int oldIndex, int newIndex) {
+                      _controller.pause();
                       setState(() {
                         if (newIndex > oldIndex) {
                           newIndex -= 1;
