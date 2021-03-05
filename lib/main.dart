@@ -20,6 +20,8 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
   double _position = 0;
   double _buffer = 0;
 
+  bool _isloading = false;
+
   VideoPlayerController _controller;
 
   VoidCallback _listener;
@@ -74,22 +76,24 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
 
   Future<void> _initController(int index) async {
     debugPrint("---- controller changed.");
-    setState(() {});
 
     _controller = VideoPlayerController.asset(_videos[index]);
+
     await _controller.initialize();
 
-    _playController(index);
-  }
+// loaded
+    setState(() {
+      _isloading = false;
+    });
 
-  void _stopController() {
-    _controller.pause();
+    _playController(index);
   }
 
   void _playController(int index) async {
     _listener = _listenerSpawner();
 
     _controller.addListener(_listener);
+
     await _controller.play();
     setState(() {});
   }
@@ -99,6 +103,13 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
       return;
     }
 
+    // loading
+    setState(() {
+      _isloading = true;
+    });
+
+    // await Future.delayed(Duration(seconds: 3));
+
     final oldController = _controller;
 
     // Registering a callback for the end of next frame
@@ -107,8 +118,11 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await oldController.dispose();
 
-      Future.delayed(Duration(seconds: 3));
-      _initController(index++);
+      setState(() {
+        index++;
+      });
+
+      _initController(index);
     });
 
     // Making sure that controller is not used by setting it to null
@@ -141,11 +155,8 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Container(
-                    child: _controller == null
-                        ? VideoItem(
-                            url: _videos[index],
-                            active: false,
-                          )
+                    child: _isloading
+                        ? CircularProgressIndicator()
                         : VideoPlayer(_controller),
                   ),
                 ),
@@ -166,7 +177,7 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
                   ),
                   Padding(
                     padding: EdgeInsets.only(
-                        left: _position * width + width * index),
+                        left: width * index + _position * width),
                     child: Container(
                       width: 10,
                       color: Colors.white,
