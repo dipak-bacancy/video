@@ -23,6 +23,7 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
   bool _isloading = false;
 
   VideoPlayerController _controller;
+  VideoPlayerController _controller2;
 
   VoidCallback _listener;
 
@@ -77,14 +78,14 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
   Future<void> _initController(int index) async {
     debugPrint("---- controller changed.");
 
-    _controller = VideoPlayerController.asset(_videos[index]);
+    if (index == 0) {
+      _controller = VideoPlayerController.asset(_videos[0]);
+      await _controller.initialize();
+    }
 
-    await _controller.initialize();
+    _controller2 = VideoPlayerController.asset(_videos[index++]);
 
-// loaded
-    setState(() {
-      _isloading = false;
-    });
+    await _controller2.initialize();
 
     _playController(index);
   }
@@ -103,31 +104,31 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
       return;
     }
 
-    // loading
-    setState(() {
-      _isloading = true;
-    });
+    // // loading
+    // setState(() {
+    //   _isloading = true;
+    // });
 
     // await Future.delayed(Duration(seconds: 3));
 
-    final oldController = _controller;
+    // final oldController = _controller;
 
-    // Registering a callback for the end of next frame
-    // to dispose of an old controller
-    // (which won't be used anymore after calling setState)
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await oldController.dispose();
+    // // Registering a callback for the end of next frame
+    // // to dispose of an old controller
+    // // (which won't be used anymore after calling setState)
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _initController(++index);
+    //   oldController.dispose();
 
-      setState(() {
-        index++;
-      });
-
-      _initController(index);
-    });
+    //   // setState(() {
+    //   //   index++;
+    //   // });
+    // });
 
     // Making sure that controller is not used by setting it to null
     setState(() {
-      _controller = null;
+      _controller = _controller2;
+      _initController(index++);
     });
 
     // _playController(++index);
@@ -156,7 +157,9 @@ class _VideoPlayerDemoState extends State<VideoPlayerDemo> {
                   padding: const EdgeInsets.all(16.0),
                   child: Container(
                     child: _isloading
-                        ? CircularProgressIndicator()
+                        ? Container(
+                            color: Colors.black,
+                          )
                         : VideoPlayer(_controller),
                   ),
                 ),
