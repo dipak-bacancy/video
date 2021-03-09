@@ -34,6 +34,7 @@ class _VideoItemState extends State<VideoItem> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = _controller;
     return Container(
       height: 50,
       width: widget.width,
@@ -41,12 +42,8 @@ class _VideoItemState extends State<VideoItem> {
           ? BoxDecoration(
               border: Border.all(width: 5, color: Colors.pink),
               borderRadius: BorderRadius.all(Radius.circular(10)))
-          : null,
-      child: Stack(children: [
-        VideoPlayer(
-          _controller,
-        ),
-      ]),
+          : BoxDecoration(),
+      child: VideoPlayer(controller),
     );
   }
 }

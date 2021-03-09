@@ -170,13 +170,13 @@ class _VideoState extends State<Video> {
                 ),
 
                 // / _progress * width + _playingIndex * width
-                // Padding(
-                //   padding: EdgeInsets.only(left: progress),
-                //   child: Container(
-                //     width: 10,
-                //     color: Colors.white,
-                //   ),
-                // )
+                Padding(
+                  padding: EdgeInsets.only(left: progress),
+                  child: Container(
+                    width: 10,
+                    color: Colors.white,
+                  ),
+                )
               ]),
             ),
             Expanded(
