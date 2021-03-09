@@ -181,8 +181,19 @@ class _VideoState extends State<Video> {
             ),
             Expanded(
               flex: 2,
-              child: ReorderableListView(
+              child: ReorderableListView.builder(
                 scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.all(12),
+                itemBuilder: (BuildContext context, int _index) {
+                  final item = _videos[_index];
+                  return VideoItem(
+                    key: ValueKey('$_index $item'),
+                    url: item,
+                    active: _playingIndex == _index,
+                    width: 80,
+                  );
+                },
+                itemCount: _videos.length,
                 onReorder: (int oldIndex, int newIndex) {
                   // _controller.pause();
                   setState(() {
@@ -192,21 +203,8 @@ class _VideoState extends State<Video> {
                     final items = _videos.removeAt(oldIndex);
                     _videos.insert(newIndex, items);
                   });
-                  replay();
+                  // replay();
                 },
-                children: _videos
-                    .asMap()
-                    .entries
-                    .map((item) => Padding(
-                          key: ValueKey(item.key),
-                          padding: const EdgeInsets.all(12.0),
-                          child: VideoItem(
-                            url: item.value,
-                            active: _playingIndex == item.key,
-                            width: 50,
-                          ),
-                        ))
-                    .toList(),
               ),
             ),
           ],
