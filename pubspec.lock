@@ -62,13 +62,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_plugin_android_lifecycle:
-    dependency: transitive
-    description:
-      name: flutter_plugin_android_lifecycle
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.11"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -79,34 +72,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  http:
-    dependency: transitive
-    description:
-      name: http
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.12.2"
-  http_parser:
-    dependency: transitive
-    description:
-      name: http_parser
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.1.4"
-  image_picker:
-    dependency: "direct main"
-    description:
-      name: image_picker
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.6.7+22"
-  image_picker_platform_interface:
-    dependency: transitive
-    description:
-      name: image_picker_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.1.6"
   js:
     dependency: transitive
     description:
@@ -135,27 +100,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.0"
-  pedantic:
-    dependency: transitive
-    description:
-      name: pedantic
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.9.2"
-  plugin_platform_interface:
-    dependency: transitive
-    description:
-      name: plugin_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.3"
-  screen:
-    dependency: "direct main"
-    description:
-      name: screen
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.5"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -238,13 +182,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.4+1"
-  video_thumbnail:
-    dependency: "direct main"
-    description:
-      name: video_thumbnail
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.5+1"
 sdks:
   dart: ">=2.12.0-0.0 <3.0.0"
   flutter: ">=1.12.13+hotfix.5"
