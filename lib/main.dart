@@ -27,6 +27,13 @@ class Video extends StatefulWidget {
 }
 
 class _VideoState extends State<Video> {
+  List _thumbnails = [
+    'assets/images/giraffe.png',
+    'assets/images/earth.png',
+    'assets/images/small.png',
+    'assets/images/summer.png',
+  ];
+
   List _videos = [
     'assets/giraffe.mp4',
     'assets/earth.mp4',
@@ -58,96 +65,111 @@ class _VideoState extends State<Video> {
 
     double progress = _progress * width + _playingIndex * width;
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            flex: 9,
-            child: NativeVideoView(
-              enableVolumeControl: false,
-              keepAspectRatio: true,
-              showMediaController: false,
-              onCreated: (controller) {
-                _controller = controller;
-                controller.setVideoSource(
-                  _videos[_playingIndex],
-                  sourceType: VideoSourceType.asset,
-                );
-              },
-              onPrepared: (controller, info) {
-                controller.play();
-              },
-              onError: (controller, what, extra, message) {
-                print('Player Error ($what | $extra | $message)');
-              },
-              onCompletion: (controller) {
-                print('Video completed');
-                if (_playingIndex > _videos.length - 1) {
-                  print('-------------------played all----');
-                  return;
-                }
-                setState(() {
-                  _playingIndex++;
-                });
-
-                controller.setVideoSource(
-                  _videos[_playingIndex],
-                  sourceType: VideoSourceType.asset,
-                );
-                controller.play();
-              },
-              onProgress: (progress, duration) {
-                setState(() {
-                  _progress = progress / duration;
-                });
-                print('$progress | $duration');
-              },
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Stack(
-              children: [
-                Placeholder(),
-                Padding(
-                  padding: EdgeInsets.only(left: progress),
-                  child: Container(
-                    width: 10,
-                    color: Colors.black,
-                  ),
-                )
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: ReorderableListView(
-              scrollDirection: Axis.horizontal,
-              onReorder: (int oldIndex, int newIndex) {
-                setState(() {
-                  if (newIndex > oldIndex) {
-                    newIndex -= 1;
+      body: Container(
+        padding: const EdgeInsets.all(10),
+        color: Colors.black,
+        child: Column(
+          children: [
+            Expanded(
+              flex: 9,
+              child: NativeVideoView(
+                enableVolumeControl: false,
+                keepAspectRatio: true,
+                showMediaController: false,
+                onCreated: (controller) {
+                  _controller = controller;
+                  controller.setVideoSource(
+                    _videos[_playingIndex],
+                    sourceType: VideoSourceType.asset,
+                  );
+                },
+                onPrepared: (controller, info) {
+                  controller.play();
+                },
+                onError: (controller, what, extra, message) {
+                  print('Player Error ($what | $extra | $message)');
+                },
+                onCompletion: (controller) {
+                  print('Video completed');
+                  if (_playingIndex > _videos.length - 1) {
+                    print('-------------------played all----');
+                    return;
                   }
-                  final items = _videos.removeAt(oldIndex);
-                  _videos.insert(newIndex, items);
-                });
-                replay();
-              },
-              children: _videos
-                  .asMap()
-                  .entries
-                  .map((item) => Padding(
-                        key: ValueKey(item.key),
-                        padding: const EdgeInsets.all(12.0),
-                        child: VideoItem(
-                          asset: item.value,
-                          active: _playingIndex == item.key,
-                          width: 50,
-                        ),
-                      ))
-                  .toList(),
+                  setState(() {
+                    _playingIndex++;
+                  });
+
+                  controller.setVideoSource(
+                    _videos[_playingIndex],
+                    sourceType: VideoSourceType.asset,
+                  );
+                  controller.play();
+                },
+                onProgress: (progress, duration) {
+                  setState(() {
+                    _progress = progress / duration ?? 1;
+                  });
+                  print('$progress | $duration');
+                },
+              ),
             ),
-          ),
-        ],
+            SizedBox(height: 10),
+            Expanded(
+              flex: 2,
+              child: Stack(
+                children: [
+                  ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (BuildContext context, int index) {
+                        return VideoItem(
+                          asset: _thumbnails[index],
+                          width: width,
+                          active: false,
+                        );
+                      }),
+                  Padding(
+                    padding: EdgeInsets.only(left: progress),
+                    child: Container(
+                      width: 10,
+                      color: Colors.white,
+                    ),
+                  )
+                ],
+              ),
+            ),
+            SizedBox(height: 10),
+            Expanded(
+              flex: 2,
+              child: ReorderableListView.builder(
+                scrollDirection: Axis.horizontal,
+                onReorder: (int oldIndex, int newIndex) {
+                  setState(() {
+                    if (newIndex > oldIndex) {
+                      newIndex -= 1;
+                    }
+
+                    _videos.insert(newIndex, _videos.removeAt(oldIndex));
+                    _thumbnails.insert(
+                        newIndex, _thumbnails.removeAt(oldIndex));
+                  });
+                  replay();
+                },
+                itemBuilder: (BuildContext context, int index) {
+                  return Padding(
+                    key: ValueKey(index),
+                    padding: const EdgeInsets.all(12.0),
+                    child: VideoItem(
+                      asset: _thumbnails[index],
+                      active: _playingIndex == index,
+                      width: 50,
+                    ),
+                  );
+                },
+                itemCount: _videos.length,
+              ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: replay,
@@ -180,6 +202,11 @@ class _VideoItemState extends State<VideoItem> {
                 border: Border.all(width: 5, color: Colors.pink),
                 borderRadius: BorderRadius.all(Radius.circular(10)))
             : BoxDecoration(),
-        child: Placeholder());
+        child: Image.asset(
+          widget.asset,
+          height: 50,
+          width: widget.width,
+          fit: BoxFit.cover,
+        ));
   }
 }
